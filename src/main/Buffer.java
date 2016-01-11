@@ -2,6 +2,8 @@ package main;
 
 import sun.awt.Mutex;
 
+import javax.swing.*;
+
 /**
  * Created by Andreas Appelqvist on 2016-01-08.
  */
@@ -12,19 +14,33 @@ public class Buffer {
     private int readPos = 0;
     private int findPos = 0;
 
-    private String findString = "är";
-    private String replaceString = "dum";
+    private String findString = "";
+    private String replaceString = "";
 
     private Word[] buffer;
 
     private Mutex lock = new Mutex();
 
-    public Buffer() {
+    private Controller controller;
+
+    private boolean notify;
+
+    public Buffer(Controller controller) {
+        this.controller = controller;
         this.max = 10;
         buffer = new Word[max];
-        for(int i = 0; i < buffer.length; i++){
+        for (int i = 0; i < buffer.length; i++) {
             buffer[i] = new Word();
         }
+    }
+
+    public void setFindAndReplace(String find, String replace){
+        this.findString = find;
+        this.replaceString = replace;
+    }
+
+    public void setNotify(boolean value) {
+        notify = value;
     }
 
     public synchronized void write(String str) {
@@ -46,7 +62,6 @@ public class Buffer {
         lock.unlock();
 
 
-
         writePos = (writePos + 1) % max;
     }
 
@@ -57,7 +72,6 @@ public class Buffer {
                 Thread.sleep(0);
                 wait();
             } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
 
@@ -67,13 +81,28 @@ public class Buffer {
             str = buffer[findPos].getWord();
             if (!replaceString.equals("")) {
                 if (str.equals(findString)) {
-                    buffer[findPos].setWord(replaceString);
+                    if (!notify) {
+                        buffer[findPos].setWord(replaceString);
+                    } else {
+                        int nbr = JOptionPane.showConfirmDialog(null,"Vill du byta *"+buffer[findPos].getWord()+"* mot *"+replaceString+"* ??");
+                        switch(nbr) {
+                            case 0:
+                                buffer[findPos].setWord(replaceString);
+                                break;
+                            case 1:
+                                System.out.println("NO REPLACE");
+                                break;
+                            case 2:
+                                System.out.println("NO REPLACE");
+                                break;
+                        }
+                    }
                 }
             }
         }
         buffer[findPos].setStatus(2);
         lock.unlock();
-        findPos = (findPos+1)%max;
+        findPos = (findPos + 1) % max;
     }
 
     public synchronized void read() {
@@ -83,26 +112,24 @@ public class Buffer {
                 Thread.sleep(0);
                 wait();
             } catch (InterruptedException e) {
-                e.printStackTrace();
             }
         }
         String str = "";
         lock.lock();
-            str = buffer[readPos].getWord();
-            buffer[readPos].setStatus(0);
+        str = buffer[readPos].getWord();
+        buffer[readPos].setStatus(0);
         lock.unlock();
+        readPos = (readPos + 1) % max;
 
-        readPos = (readPos+1)%max;
-        System.out.println(str);
-
+        controller.writeToGUIDest(str);
         showBuffer();
     }
 
 
-    public void showBuffer(){
+    public void showBuffer() {
         System.out.print("\n**Buffer**\n");
-        for(int i = 0; i < buffer.length; i++){
-            System.out.print(buffer[i].getStatus()+" ");
+        for (int i = 0; i < buffer.length; i++) {
+            System.out.print(buffer[i].getStatus() + " ");
         }
         System.out.print("\n**Buffer**\n");
     }

@@ -1,14 +1,17 @@
 
 package main;
 
+import java.util.LinkedList;
+
 public class Start
 {
 	public static void main(String[] args)
 	{
-		//GUIMonitor test = new GUIMonitor();
-		//test.Start();
+		GUIMonitor gui = new GUIMonitor();
+		Controller controller = new Controller(gui);
+		gui.setController(controller);
+		gui.Start();
 
-		new Controller();
 	}
 
 }

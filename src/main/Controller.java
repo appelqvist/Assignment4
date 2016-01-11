@@ -13,22 +13,52 @@ public class Controller {
     private Modifier modifier;
     private GUIMonitor gui;
 
-    public Controller(){
-        LinkedList<String> txt;
-        txt = new LinkedList<String>();
-        txt.addFirst("HEJ");
-        txt.addFirst("Jag");
-        txt.addFirst("hETER");
-        txt.addFirst("Andreas");
-        txt.addFirst("du");
-        txt.addFirst("är");
-        txt.addFirst("en");
-        txt.addFirst("prick");
-        buffer = new Buffer();
+
+    public Controller(GUIMonitor gui){
+        this.gui = gui;
+        this.buffer = new Buffer(this);
+    }
+
+    public void writeToGUIDest(String str){
+        gui.appendDestinationPane(str);
+    }
+
+    public LinkedList<String> stringToLinkedList(String str){
+        LinkedList<String> list = new LinkedList<String>();
+        String[] array = str.split(" ");
+        for(int i = 0; i < array.length; i++){
+            list.addLast(array[i]);
+        }
+        System.out.println(list);
+        return list;
+    }
+
+    public void startCopy(boolean notify, String find, String replace, LinkedList<String> txt){
+        if(writer != null){
+            writer.stopThread();
+            writer = null;
+        }
+        if(reader != null){
+            reader.stopThread();
+            reader = null;
+        }
+
+        if(modifier != null){
+            modifier.stopThread();
+            modifier = null;
+        }
+
         writer = new Writer(buffer, txt);
         reader = new Reader(buffer);
         modifier = new Modifier(buffer);
+        buffer.setNotify(notify);
+        buffer.setFindAndReplace(find, replace);
 
+        runThreads();
+
+    }
+
+    public void runThreads(){
         writer.startThread();
         reader.startThread();
         modifier.startThread();

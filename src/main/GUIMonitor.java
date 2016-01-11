@@ -3,6 +3,7 @@ package main;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyEvent;
 import javax.swing.*;
 
@@ -27,8 +28,13 @@ public class GUIMonitor
 	private JButton btnCreate;			// Start copying
 	private JButton btnClear;			// Removes dest. file and removes marks
 	private JLabel lblChanges;			// Label telling number of replacements
-	
-	/**
+    private Controller controller;
+
+
+    private JTextPane txtPaneSource;
+    private JTextPane txtPaneDest;
+
+    /**
 	 * Constructor
 	 */
 	public GUIMonitor()
@@ -112,13 +118,38 @@ public class GUIMonitor
 		JTabbedPane tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.setBounds(12, 170, 653, 359);
 		frame.add(tabbedPane);
-		JTextPane txtPaneSource = new JTextPane();
+		txtPaneSource = new JTextPane();
 		JScrollPane scrollSource = new JScrollPane(txtPaneSource);
 		tabbedPane.addTab("Source", null, scrollSource, null);
-		JTextPane txtPaneDest = new JTextPane();
+		txtPaneDest = new JTextPane();
 		JScrollPane scrollDest = new JScrollPane(txtPaneDest);
 		tabbedPane.addTab("Destination", null, scrollDest, null);
+
+        btnCreate.addActionListener(new ClickListener());
+        btnClear.addActionListener(new ClickListener());
 	}
 
+    public void appendDestinationPane(String str){
+        txtPaneDest.setText(txtPaneDest.getText()+str+" ");
+    }
 
+    public void clearDestination(){
+        txtPaneDest.setText("");
+    }
+
+    public void setController(Controller controller) {
+        this.controller = controller;
+    }
+
+    private class ClickListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            if(e.getSource() == btnCreate){
+                controller.startCopy(chkNotify.isSelected(),txtFind.getText(), txtReplace.getText(),controller.stringToLinkedList(txtPaneSource.getText()));
+            }
+            if(e.getSource() == btnClear){
+                clearDestination();
+            }
+        }
+    }
 }
