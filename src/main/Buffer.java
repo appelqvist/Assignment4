@@ -14,6 +14,8 @@ public class Buffer {
     private int readPos = 0;
     private int findPos = 0;
 
+    private int nbrOfReplace = 0;
+
     private String findString = "";
     private String replaceString = "";
 
@@ -83,11 +85,13 @@ public class Buffer {
                 if (str.equals(findString)) {
                     if (!notify) {
                         buffer[findPos].setWord(replaceString);
+                        nbrOfReplace++;
                     } else {
                         int nbr = JOptionPane.showConfirmDialog(null,"Vill du byta *"+buffer[findPos].getWord()+"* mot *"+replaceString+"* ??");
                         switch(nbr) {
                             case 0:
                                 buffer[findPos].setWord(replaceString);
+                                nbrOfReplace++;
                                 break;
                             case 1:
                                 System.out.println("NO REPLACE");
@@ -101,6 +105,7 @@ public class Buffer {
             }
         }
         buffer[findPos].setStatus(2);
+        controller.updateGUInbrReplace(nbrOfReplace);
         lock.unlock();
         findPos = (findPos + 1) % max;
     }
@@ -122,9 +127,13 @@ public class Buffer {
         readPos = (readPos + 1) % max;
 
         controller.writeToGUIDest(str);
-        showBuffer();
+        //showBuffer();
     }
 
+
+    public void resetCount(){
+        nbrOfReplace = 0;
+    }
 
     public void showBuffer() {
         System.out.print("\n**Buffer**\n");

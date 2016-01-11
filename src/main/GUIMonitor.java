@@ -100,7 +100,7 @@ public class GUIMonitor
 		chkNotify.setBounds(88, 87, 180, 17);
 		pnlFind.add(chkNotify);
 		
-		lblInfo = new JLabel("Select Source File..");
+		lblInfo = new JLabel("");
 		lblInfo.setBounds(485, 42, 120, 13);
 		frame.add(lblInfo);
 		
@@ -127,6 +127,10 @@ public class GUIMonitor
 
         btnCreate.addActionListener(new ClickListener());
         btnClear.addActionListener(new ClickListener());
+
+        openItem.addActionListener(new ClickListener());
+        saveItem.addActionListener(new ClickListener());
+        exitItem.addActionListener(new ClickListener());
 	}
 
     public void appendDestinationPane(String str){
@@ -149,7 +153,25 @@ public class GUIMonitor
             }
             if(e.getSource() == btnClear){
                 clearDestination();
+                setVisibleSaveFile(false);
+            }
+			if(e.getSource() == openItem){
+                txtPaneSource.setText(controller.browserTxt());
+			}
+            if(e.getSource() == saveItem){
+                controller.saveFile(txtPaneDest.getText());
+            }
+            if(e.getSource() == exitItem){
+                System.exit(0);
             }
         }
+    }
+
+    public void setNumberOfReplace(int nbr){
+        lblChanges.setText(""+nbr);
+    }
+
+    public void setVisibleSaveFile(boolean value){
+        saveItem.setEnabled(value);
     }
 }

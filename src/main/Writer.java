@@ -30,6 +30,7 @@ public class Writer extends Thread{
         super.run();
         String str = "";
         while(running && !textToWrite.isEmpty()){
+            System.out.println(textToWrite.size());
             str = textToWrite.removeFirst();
             buffer.write(str);
         }
