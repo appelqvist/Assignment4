@@ -16,7 +16,7 @@ public class GUIMonitor
 	 * These are the components you need to handle.
 	 * You have to add listeners and/or code
 	 */
-	private JFrame frame;				// The Start window
+	private JFrame frame;				// The Main window
 	private JMenu fileMenu;				// The menu
 	private JMenuItem openItem;			// File - open
 	private JMenuItem saveItem;			// File - save as
@@ -25,7 +25,7 @@ public class GUIMonitor
 	private JTextField txtReplace; 		// Input string to replace
 	private JCheckBox chkNotify;		// User notification choise
 	private JLabel lblInfo;				// Hidden after file selected
-	private JButton btnCreate;			// Start copying
+	private JButton btnCreate;			// Main copying
 	private JButton btnClear;			// Removes dest. file and removes marks
 	private JLabel lblChanges;			// Label telling number of replacements
     private Controller controller;
@@ -54,7 +54,7 @@ public class GUIMonitor
 		InitializeGUI();					// Fill in components
 		frame.setVisible(true);
 		frame.setResizable(false);			// Prevent user from change size
-		frame.setLocationRelativeTo(null);	// Start middle screen
+		frame.setLocationRelativeTo(null);	// Main middle screen
 	}
 	
 	/**
@@ -150,7 +150,7 @@ public class GUIMonitor
         public void actionPerformed(ActionEvent e) {
             if(e.getSource() == btnCreate){
                 controller.startCopy(chkNotify.isSelected(),txtFind.getText(), txtReplace.getText(),controller.stringToLinkedList(txtPaneSource.getText()));
-            }
+			}
             if(e.getSource() == btnClear){
                 clearDestination();
                 setVisibleSaveFile(false);

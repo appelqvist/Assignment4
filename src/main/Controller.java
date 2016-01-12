@@ -16,16 +16,28 @@ public class Controller {
     private Modifier modifier;
     private GUIMonitor gui;
 
-
+    /**
+     * Konstruktor
+     * @param gui
+     */
     public Controller(GUIMonitor gui) {
         this.gui = gui;
         this.buffer = new Buffer(this);
     }
 
+    /**
+     * Skriver sträng till gui.
+     * @param str
+     */
     public void writeToGUIDest(String str) {
         gui.appendDestinationPane(str);
     }
 
+    /**
+     * Översätter string till linkedList.
+     * @param str
+     * @return
+     */
     public LinkedList<String> stringToLinkedList(String str) {
         LinkedList<String> list = new LinkedList<String>();
         String[] array = str.split(" ");
@@ -36,6 +48,13 @@ public class Controller {
         return list;
     }
 
+    /**
+     * Starta ny kopiering
+     * @param notify
+     * @param find
+     * @param replace
+     * @param txt
+     */
     public void startCopy(boolean notify, String find, String replace, LinkedList<String> txt) {
         if (writer != null) {
             writer.stopThread();
@@ -56,12 +75,16 @@ public class Controller {
         modifier = new Modifier(buffer);
         buffer.setNotify(notify);
         buffer.setFindAndReplace(find, replace);
-
+        buffer.resetCount();
         runThreads();
         gui.setVisibleSaveFile(true);
 
     }
 
+    /**
+     * Spara fil på hårddisk
+     * @param str
+     */
     public void saveFile(String str){
         try (PrintStream out = new PrintStream(new FileOutputStream("saved.txt"))) {
             out.print(str);
@@ -70,6 +93,10 @@ public class Controller {
         }
     }
 
+    /**
+     * Hämtar en textfil som läses in.
+     * @return
+     */
     public String browserTxt() {
 
         JFileChooser chooser = new JFileChooser();
@@ -105,10 +132,17 @@ public class Controller {
 
     }
 
+    /**
+     * Uppdaterar gui med antal replaces
+     * @param nbr
+     */
     public void updateGUInbrReplace(int nbr){
         gui.setNumberOfReplace(nbr);
     }
 
+    /**
+     * Startar trådarna
+     */
     public void runThreads() {
         writer.startThread();
         reader.startThread();

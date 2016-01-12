@@ -6,6 +6,7 @@ import javax.swing.*;
 
 /**
  * Created by Andreas Appelqvist on 2016-01-08.
+ *   Buffer
  */
 public class Buffer {
 
@@ -19,14 +20,15 @@ public class Buffer {
     private String findString = "";
     private String replaceString = "";
 
-    private Word[] buffer;//
-
-    private Mutex lock = new Mutex();
+    private Word[] buffer;
 
     private Controller controller;
 
     private boolean notify;
 
+    /**
+     * Konstruktor
+     */
     public Buffer(Controller controller) {
         this.controller = controller;
         this.max = 10;
@@ -36,21 +38,36 @@ public class Buffer {
         }
     }
 
+    /**
+     * Säger åt bufferten vilka strängar som de ska leta efter och
+     * vad som ska byta ut.
+     * @param find
+     * @param replace
+     */
     public void setFindAndReplace(String find, String replace){
         this.findString = find;
         this.replaceString = replace;
     }
 
+    /**
+     * Sätter om det ska vara notification på byte
+     * @param value
+     */
     public void setNotify(boolean value) {
         notify = value;
     }
 
+
+    /**
+     * Skriver en sträng till bufferten
+     * @param str
+     */
     public synchronized void write(String str) {
         //System.out.println("början på write");
         //showBuffer();
         while (buffer[writePos].getStatus() != 0) {
             try {
-                notify();
+                notifyAll();
                 Thread.sleep(0);
                 wait();
             } catch (InterruptedException e) {
@@ -58,15 +75,16 @@ public class Buffer {
             }
         }
 
-        lock.lock();
         buffer[writePos].setWord(str);
         buffer[writePos].setStatus(1);
-        lock.unlock();
 
 
         writePos = (writePos + 1) % max;
     }
 
+    /**
+     * Kollar om ett ord ska bytas ut
+     */
     public synchronized void checking() {
         while (buffer[findPos].getStatus() != 1) {
             try {
@@ -78,7 +96,6 @@ public class Buffer {
         }
 
         String str = "";
-        lock.lock();
         if (!findString.equals("")) {
             str = buffer[findPos].getWord();
             if (!replaceString.equals("")) {
@@ -106,40 +123,36 @@ public class Buffer {
         }
         buffer[findPos].setStatus(2);
         controller.updateGUInbrReplace(nbrOfReplace);
-        lock.unlock();
         findPos = (findPos + 1) % max;
     }
 
+    /**
+     * Läser ord från bufferten, och skriver ut det i gui
+     */
     public synchronized void read() {
         while (buffer[readPos].getStatus() != 2) {
             try {
-                notify();
+                notifyAll();
                 Thread.sleep(0);
                 wait();
             } catch (InterruptedException e) {
             }
         }
         String str = "";
-        lock.lock();
         str = buffer[readPos].getWord();
         buffer[readPos].setStatus(0);
-        lock.unlock();
         readPos = (readPos + 1) % max;
-
         controller.writeToGUIDest(str);
+
         //showBuffer();
     }
 
 
+    /**
+     * Återställer antal byten
+     */
     public void resetCount(){
         nbrOfReplace = 0;
     }
 
-    public void showBuffer() {
-        System.out.print("\n**Buffer**\n");
-        for (int i = 0; i < buffer.length; i++) {
-            System.out.print(buffer[i].getStatus() + " ");
-        }
-        System.out.print("\n**Buffer**\n");
-    }
 }
