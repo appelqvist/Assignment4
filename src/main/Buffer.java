@@ -19,7 +19,7 @@ public class Buffer {
     private String findString = "";
     private String replaceString = "";
 
-    private Word[] buffer;
+    private Word[] buffer;//
 
     private Mutex lock = new Mutex();
 
