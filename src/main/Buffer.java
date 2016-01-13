@@ -68,8 +68,6 @@ public class Buffer {
      * @param str
      */
     public synchronized void write(String str) {
-        //System.out.println("början på write");
-        //showBuffer();
         while (status[writePos] != BufferStatus.EMPTY) {
             try {
                 notifyAll();
@@ -133,7 +131,6 @@ public class Buffer {
         status[findPos] = BufferStatus.CHECKED;
         buffer[findPos] = newStr;
 
-        System.out.println(newStr);
         controller.updateGUInbrReplace(nbrOfReplace);
         findPos = (findPos + 1) % max;
     }

@@ -48,7 +48,6 @@ public class Controller {
             compareChar = str.charAt(i);
             if(compareChar == ',' || compareChar == '.' || compareChar == '\n' || i == str.length()-1){
                 subString = str.substring(start, i+1);
-                System.out.println(subString);
                 start = i+2;
                 list.addFirst(subString);
             }
@@ -116,7 +115,6 @@ public class Controller {
         int returnValue = chooser.showOpenDialog(null);
         if (returnValue == JFileChooser.APPROVE_OPTION) {
             File selectedFile = chooser.getSelectedFile();
-            System.out.println(selectedFile);
 
             try (BufferedReader br = new BufferedReader(new FileReader(selectedFile))){
                 String line;
