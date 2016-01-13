@@ -96,12 +96,11 @@ public class Buffer {
             }
         }
 
-        String str = "";
-        String newStr = "";
+        String str = buffer[findPos];
+
 
         if (!findString.equals("")) {
-
-            str = buffer[findPos];
+            String newStr = "";
 
             while (str.contains(findString)) {
                 newStr += str.substring(0, str.indexOf(findString));
@@ -126,10 +125,12 @@ public class Buffer {
                 str = str.substring(str.indexOf(findString) + findString.length(), str.length());
             }
             newStr += str;
+
+            str = newStr;
         }
 
         status[findPos] = BufferStatus.CHECKED;
-        buffer[findPos] = newStr;
+        buffer[findPos] = str;
 
         controller.updateGUInbrReplace(nbrOfReplace);
         findPos = (findPos + 1) % max;
