@@ -1,7 +1,6 @@
 http://www.i-programmer.info/programming/theory/8864-managing-asynchronous-code-callbacks-promises-a-asyncawait.html
 What Is Asynchronous Programming?
-Written by Mike James	  
-Friday, 28 June 2013
+Written by Mike James Friday, 28 June 2013
 Article Index
 What Is Asynchronous Programming?
 Non-blocking calls

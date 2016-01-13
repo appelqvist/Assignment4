@@ -20,7 +20,8 @@ public class Buffer {
     private String findString = "";
     private String replaceString = "";
 
-    private Word[] buffer;
+    private String[] buffer;
+    private BufferStatus[] status;
 
     private Controller controller;
 
@@ -32,9 +33,10 @@ public class Buffer {
     public Buffer(Controller controller) {
         this.controller = controller;
         this.max = 10;
-        buffer = new Word[max];
+        buffer = new String[max];
+        status = new BufferStatus[max];
         for (int i = 0; i < buffer.length; i++) {
-            buffer[i] = new Word();
+            status[i] = BufferStatus.EMPTY;
         }
     }
 
@@ -65,7 +67,7 @@ public class Buffer {
     public synchronized void write(String str) {
         //System.out.println("början på write");
         //showBuffer();
-        while (buffer[writePos].getStatus() != 0) {
+        while (status[writePos] != BufferStatus.EMPTY) {
             try {
                 notifyAll();
                 Thread.sleep(0);
@@ -75,10 +77,8 @@ public class Buffer {
             }
         }
 
-        buffer[writePos].setWord(str);
-        buffer[writePos].setStatus(1);
-
-
+        buffer[writePos] = str;
+        status[writePos] = BufferStatus.NEW;
         writePos = (writePos + 1) % max;
     }
 
@@ -86,7 +86,7 @@ public class Buffer {
      * Kollar om ett ord ska bytas ut
      */
     public synchronized void checking() {
-        while (buffer[findPos].getStatus() != 1) {
+        while (status[findPos] != BufferStatus.NEW) {
             try {
                 notify();
                 Thread.sleep(0);
@@ -97,31 +97,24 @@ public class Buffer {
 
         String str = "";
         if (!findString.equals("")) {
-            str = buffer[findPos].getWord();
-            if (!replaceString.equals("")) {
-                if (str.equals(findString)) {
-                    if (!notify) {
-                        buffer[findPos].setWord(replaceString);
-                        nbrOfReplace++;
-                    } else {
-                        int nbr = JOptionPane.showConfirmDialog(null,"Vill du byta *"+buffer[findPos].getWord()+"* mot *"+replaceString+"* ??");
-                        switch(nbr) {
-                            case 0:
-                                buffer[findPos].setWord(replaceString);
-                                nbrOfReplace++;
-                                break;
-                            case 1:
-                                System.out.println("NO REPLACE");
-                                break;
-                            case 2:
-                                System.out.println("NO REPLACE");
-                                break;
-                        }
-                    }
-                }
+
+            String newStr = "";
+            str = buffer[findPos];
+            int startPos = 0;
+            while(str.contains(findString)){
+
+                newStr += str.substring(0, str.indexOf(findString));
+                newStr += replaceString;
+                str = str.substring(0,str.indexOf(findString)+findString.length());
+                System.out.println("New: "+ newStr);
+                System.out.println(str);
             }
+            newStr += str;
+            System.out.println(newStr);
+
         }
-        buffer[findPos].setStatus(2);
+
+        status[findPos] = BufferStatus.CHECKED;
         controller.updateGUInbrReplace(nbrOfReplace);
         findPos = (findPos + 1) % max;
     }
@@ -130,7 +123,7 @@ public class Buffer {
      * Läser ord från bufferten, och skriver ut det i gui
      */
     public synchronized void read() {
-        while (buffer[readPos].getStatus() != 2) {
+        while (status[readPos] != BufferStatus.CHECKED) {
             try {
                 notifyAll();
                 Thread.sleep(0);
@@ -139,8 +132,9 @@ public class Buffer {
             }
         }
         String str = "";
-        str = buffer[readPos].getWord();
-        buffer[readPos].setStatus(0);
+        str = buffer[readPos];
+        status[readPos] = BufferStatus.EMPTY;
+
         readPos = (readPos + 1) % max;
         controller.writeToGUIDest(str);
 

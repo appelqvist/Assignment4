@@ -40,10 +40,20 @@ public class Controller {
      */
     public LinkedList<String> stringToLinkedList(String str) {
         LinkedList<String> list = new LinkedList<String>();
-        String[] array = str.split(" ");
-        for (int i = 0; i < array.length; i++) {
-            list.addLast(array[i]);
+
+        char compareChar;
+        String subString = "";
+        int start = 0;
+        for(int i = 0; i < str.length(); i++){
+            compareChar = str.charAt(i);
+            if(compareChar == ',' || compareChar == '.' || compareChar == '\n' || i == str.length()-1){
+                subString = str.substring(start, i+1);
+                System.out.println(subString);
+                start = i+1;
+                list.addFirst(subString);
+            }
         }
+
         System.out.println(list);
         return list;
     }
