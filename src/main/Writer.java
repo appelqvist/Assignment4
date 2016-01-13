@@ -47,7 +47,7 @@ public class Writer extends Thread{
         String str = "";
         while(running && !textToWrite.isEmpty()){
             System.out.println(textToWrite.size());
-            str = textToWrite.removeFirst();
+            str = textToWrite.removeLast();
             buffer.write(str);
         }
     }

@@ -49,11 +49,10 @@ public class Controller {
             if(compareChar == ',' || compareChar == '.' || compareChar == '\n' || i == str.length()-1){
                 subString = str.substring(start, i+1);
                 System.out.println(subString);
-                start = i+1;
+                start = i+2;
                 list.addFirst(subString);
             }
         }
-
         System.out.println(list);
         return list;
     }

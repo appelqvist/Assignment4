@@ -6,7 +6,7 @@ import javax.swing.*;
 
 /**
  * Created by Andreas Appelqvist on 2016-01-08.
- *   Buffer
+ * Buffer
  */
 public class Buffer {
 
@@ -43,16 +43,18 @@ public class Buffer {
     /**
      * Säger åt bufferten vilka strängar som de ska leta efter och
      * vad som ska byta ut.
+     *
      * @param find
      * @param replace
      */
-    public void setFindAndReplace(String find, String replace){
+    public void setFindAndReplace(String find, String replace) {
         this.findString = find;
         this.replaceString = replace;
     }
 
     /**
      * Sätter om det ska vara notification på byte
+     *
      * @param value
      */
     public void setNotify(boolean value) {
@@ -62,6 +64,7 @@ public class Buffer {
 
     /**
      * Skriver en sträng till bufferten
+     *
      * @param str
      */
     public synchronized void write(String str) {
@@ -88,7 +91,7 @@ public class Buffer {
     public synchronized void checking() {
         while (status[findPos] != BufferStatus.NEW) {
             try {
-                notify();
+                notifyAll();
                 Thread.sleep(0);
                 wait();
             } catch (InterruptedException e) {
@@ -96,25 +99,41 @@ public class Buffer {
         }
 
         String str = "";
+        String newStr = "";
+
         if (!findString.equals("")) {
 
-            String newStr = "";
             str = buffer[findPos];
-            int startPos = 0;
-            while(str.contains(findString)){
 
+            while (str.contains(findString)) {
                 newStr += str.substring(0, str.indexOf(findString));
-                newStr += replaceString;
-                str = str.substring(0,str.indexOf(findString)+findString.length());
-                System.out.println("New: "+ newStr);
-                System.out.println(str);
+                boolean doReplace = false;
+
+                if (notify) {
+                    int nbr = JOptionPane.showConfirmDialog(null, "Vill du byta *" + findString + "* mot *" + replaceString + "* ??");
+
+                    if (nbr == 0) {
+                        doReplace = true;
+                    }
+                } else {
+                    doReplace = true;
+                }
+
+                if (doReplace) {
+                    newStr += replaceString;
+                    nbrOfReplace++;
+                } else {
+                    newStr += findString;
+                }
+                str = str.substring(str.indexOf(findString) + findString.length(), str.length());
             }
             newStr += str;
-            System.out.println(newStr);
-
         }
 
         status[findPos] = BufferStatus.CHECKED;
+        buffer[findPos] = newStr;
+
+        System.out.println(newStr);
         controller.updateGUInbrReplace(nbrOfReplace);
         findPos = (findPos + 1) % max;
     }
@@ -137,15 +156,13 @@ public class Buffer {
 
         readPos = (readPos + 1) % max;
         controller.writeToGUIDest(str);
-
-        //showBuffer();
     }
 
 
     /**
      * Återställer antal byten
      */
-    public void resetCount(){
+    public void resetCount() {
         nbrOfReplace = 0;
     }
 
